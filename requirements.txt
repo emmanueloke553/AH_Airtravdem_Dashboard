@@ -1,0 +1,7 @@
+pandas
+streamlit
+plotly
+os
+warnings
+googlemaps
+openpyxl
