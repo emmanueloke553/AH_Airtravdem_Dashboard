@@ -27,7 +27,7 @@ if fl is not None:
     else:
         townpop = pd.read_excel(fl)
 else:
-    townpop = pd.read_excel(r"C:\Users\eoke5\OneDrive\School Transfer\Coding\Design Project\2023popestimates.xlsx")
+    townpop = pd.read_excel("2023popestimates.xlsx")
 
 # CLEAN HEADERS & VALUES
 townpop.columns = townpop.columns.str.strip()
