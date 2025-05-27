@@ -11,10 +11,10 @@ gmaps = googlemaps.Client(key='AIzaSyA1EedkC8LZp8J3n3vCrAvFCBFoC2flaNs')
 
 px.set_mapbox_access_token("pk.eyJ1IjoiZW1tYW51ZWw1NTMiLCJhIjoiY21iMHo2NHR0MHByNDJqc2ExbW9tYXIxdyJ9.ZpoelGXM50x8AoLAPU6V9Q")
 
-# PAGE CONFIG
+# --- PAGE CONFIG ---
 st.set_page_config(page_title="UK Air Passenger Demand", page_icon=":bar_chart:", layout="wide")
 st.title(" :bar_chart: UK Population")
-st.markdown('<style>div.block-container{padding-top:1rem;}</style>', unsafe_allow_html=True)
+st.markdown('<style>div.block-container{padding-top:3rem;}</style>', unsafe_allow_html=True)
 
 # FILE UPLOAD
 fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
@@ -29,6 +29,8 @@ if fl is not None:
 else:
     townpop = pd.read_excel("2023popestimates.xlsx")
 
+# ---------------------------------------------------------------------------------------------
+# --- Data Cleaning ---
 # CLEAN HEADERS & VALUES
 townpop.columns = townpop.columns.str.strip()
 townpop['Geography'] = townpop['Geography'].str.strip()
@@ -270,6 +272,7 @@ if exclude_london:
 st.dataframe(filtered_df)
 
 # ---------------------------------------------------------------------------
+# --- Make Plots ---
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "📈 Summary",
     "🏙️ Population & Demand",
@@ -288,7 +291,12 @@ with tab1:
 with tab2:
     # Show Bar Chart of Population
     st.subheader("Population of Towns")
-    fig = px.bar(filtered_df, x = "Region", y = "Mid-2023", text = [f"${x:,.2f}".format(x) for x in filtered_df["Mid-2023"]], template = "seaborn")
+    fig = px.bar(
+        filtered_df, 
+        x = "Region", 
+        y = "Mid-2023", 
+        text = filtered_df["Mid-2023"].apply(lambda x: f"{x:,.0f}"), 
+        template = "seaborn")
     st.plotly_chart(fig,use_container_width=True, height = 200)
 
     st.subheader("Total Annual Air Travel Demand in Filtered Selection")
