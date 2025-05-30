@@ -143,7 +143,7 @@ def get_travel_times(town):
             f"{town}, UK",
             "Heathrow Airport, London, UK",
             mode="driving",
-            departure_time=datetime.datetime(2025, 5, 28, 9, 0)
+            departure_time = datetime.datetime.now() + datetime.timedelta(hours=1)
         )
         element = driving_result['rows'][0]['elements'][0]
         if element.get('status') == 'OK':
@@ -160,7 +160,7 @@ def get_travel_times(town):
             f"{town}, UK",
             "Heathrow Airport, London, UK",
             mode="transit",
-            departure_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
+            departure_time = datetime.datetime.now() + datetime.timedelta(hours=1)
         )
         element = transit_result['rows'][0]['elements'][0]
         if element.get('status') == 'OK':
