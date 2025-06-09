@@ -8,6 +8,8 @@ import os
 warnings.filterwarnings('ignore')
 
 gmaps = googlemaps.Client(key='AIzaSyA1EedkC8LZp8J3n3vCrAvFCBFoC2flaNs')
+test = gmaps.distance_matrix("Reading, UK", "Heathrow Airport, London, UK", mode="driving")
+st.write("Test result:", test)
 
 px.set_mapbox_access_token("pk.eyJ1IjoiZW1tYW51ZWw1NTMiLCJhIjoiY21iMHo2NHR0MHByNDJqc2ExbW9tYXIxdyJ9.ZpoelGXM50x8AoLAPU6V9Q")
 
@@ -244,7 +246,7 @@ for town, time_data in travel_time_cache.items():
             "Transit": time_data.get("Transit")
         })
 
-pd.DataFrame(travel_cache_rows).to_csv("travel_mode_cache.csv", index=False)
+pd.DataFrame(travel_cache_rows).to_csv(CACHE_PATH, index=False)
 
 
 # --------------------------------------------------
@@ -309,7 +311,8 @@ with tab1:
 
 # Annual Air Travel Demand
     st.subheader("Total Annual Air Travel Demand in Filtered Selection")
-    st.metric("Demand", f"{filtered_df['Annual Air Travel Demand'].sum():,}")
+    total_demand = filtered_df["Annual Air Travel Demand"].sum()
+    st.metric("Demand", f"{total_demand:,.0f}")
 
 with tab2:
     # Show Bar Chart of Population
