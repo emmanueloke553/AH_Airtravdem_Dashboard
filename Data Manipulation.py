@@ -7,7 +7,7 @@ import datetime
 import os
 warnings.filterwarnings('ignore')
 
-gmaps = googlemaps.Client(key='AIzaSyA1EedkC8LZp8J3n3vCrAvFCBFoC2flaNs')
+gmaps = googlemaps.Client(key='AIzaSyAY2UiYlMrmqUMarroMfogazA6Ls0t7rV0')
 test = gmaps.distance_matrix("Reading, UK", "Heathrow Airport, London, UK", mode="driving")
 st.write("Test result:", test)
 
