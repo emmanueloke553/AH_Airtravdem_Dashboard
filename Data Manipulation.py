@@ -320,7 +320,7 @@ with tab2:
         filtered_df, 
         x = "Region", 
         y = "Mid-2023", 
-        text = filtered_df["Mid-2023"].apply(lambda x: f"{x:,.0f}"), 
+        text = filtered_df["Mid-2023"], 
         template="plotly_white",
         height = 400)
     fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
@@ -334,7 +334,7 @@ with tab3:
         filtered_df,
         x="Region",
         y="Annual Air Travel Demand",
-        text=filtered_df["Annual Air Travel Demand"].apply(lambda x: f"{x:,.0f}"),
+        text=filtered_df["Annual Air Travel Demand"],
         template="plotly_white",
         title="Total Annual Air Travel Demand by Region"
     )
@@ -401,7 +401,7 @@ with tab5:
         (filtered_df["Annual Air Travel Demand"] > filtered_df["Annual Air Travel Demand"].median())
     ][["Name", "Region", "Mid-2023", "Annual Air Travel Demand", "Driving Time (mins)"]]
 
-    
+    fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     st.dataframe(high_demand_close.sort_values("Annual Air Travel Demand", ascending=False))
     
 
