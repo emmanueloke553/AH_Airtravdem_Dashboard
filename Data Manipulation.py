@@ -64,11 +64,11 @@ townpop = townpop[townpop['Geography'].isin([
 # --- Get Multiplier ---
 region_trips = pd.DataFrame({
     "Region": [
-        "SOUTH EAST", "SOUTH WEST", "EAST", "WEST MIDLANDS", "EAST MIDLANDS",
+        "LONDON","SOUTH EAST", "SOUTH WEST", "EAST", "WEST MIDLANDS", "EAST MIDLANDS",
         "YORKSHIRE AND THE HUMBER", "NORTH WEST", "NORTH EAST", "WALES"
     ],
     "Heathrow Trips": [
-        41989000, 4095000, 4739000, 1809000, 1881000,
+        23128797,11623993, 4095000, 4739000, 1809000, 1881000,
         859000, 614000, 155000, 1161000
     ]
 })
@@ -79,24 +79,9 @@ region_pop.columns = ["Region", "Region Population"]
 # Merge pop with trips
 region_data = pd.merge(region_trips, region_pop, on="Region")
 region_data["Trip Rate"] = region_data["Heathrow Trips"] / region_data["Region Population"]
-# If the region is London, give it the SOUTH EAST Trip rate
-# Get South East's trip rate
-southeast_rate = region_data.loc[region_data["Region"] == "SOUTH EAST", "Trip Rate"].values[0]
-# Get London's population
-london_pop = region_pop.loc[region_pop["Region"] == "LONDON", "Region Population"].values[0]
-# Create new row for London
-london_row = pd.DataFrame([{
-    "Region": "LONDON",
-    "Heathrow Trips": southeast_rate * london_pop,
-    "Region Population": london_pop,
-    "Trip Rate": southeast_rate
-}])
-# Append it to region_data
-region_data = pd.concat([region_data, london_row], ignore_index=True)
-# Merge this data with main table
+# Merge with main table
 townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="left")
 townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
-
 
 # --- Cache Setup ---
 # Get Travel times to Heathrow using google maps API
@@ -321,6 +306,10 @@ with tab1:
 # SUMMARY STATS
     st.subheader("Total Population in Filtered Selection")
     st.metric("Population", f"{filtered_df['Mid-2023'].sum():,}")
+
+# Annual Air Travel Demand
+    st.subheader("Total Annual Air Travel Demand in Filtered Selection")
+    st.metric("Demand", f"{filtered_df['Annual Air Travel Demand'].sum():,}")
 
 with tab2:
     # Show Bar Chart of Population
