@@ -68,7 +68,7 @@ region_trips = pd.DataFrame({
         "YORKSHIRE AND THE HUMBER", "NORTH WEST", "NORTH EAST", "WALES"
     ],
     "Heathrow Trips": [
-        23128797,11623993, 4095000, 4739000, 1809000, 1881000,
+        29936000,12053000, 4095000, 4739000, 1809000, 1881000,
         859000, 614000, 155000, 1161000
     ]
 })
