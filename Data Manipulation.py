@@ -321,7 +321,7 @@ with tab2:
         x = "Region", 
         y = "Mid-2023", 
         text = filtered_df["Mid-2023"].apply(lambda x: f"{x:,.0f}"), 
-        template = "seaborn")
+        template="plotly_white")
     st.plotly_chart(fig,use_container_width=True, height = 200)
 
     st.subheader("Total Annual Air Travel Demand in Filtered Selection")
@@ -335,7 +335,7 @@ with tab3:
         x="Region",
         y="Annual Air Travel Demand",
         text=filtered_df["Annual Air Travel Demand"].apply(lambda x: f"{x:,.0f}"),
-        template="seaborn",
+        template="plotly_white",
         title="Total Annual Air Travel Demand by Region"
     )
     # Show chart in Streamlit
@@ -352,7 +352,7 @@ with tab3:
         y='Annual Air Travel Demand',
         text='Annual Air Travel Demand',
         title='Top 10 Areas by Annual Air Travel Demand',
-        template='seaborn'
+        template="plotly_white"
     )
     fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     fig.update_layout(xaxis_tickangle=45)
@@ -428,7 +428,7 @@ with tab7:
         y="Time Gap (mins)",
         text="Time Gap (mins)",
         title="Top 10 Areas with Biggest Public Transport Delay vs Driving",
-        template="seaborn"
+        template="plotly_white"
     )
     fig.update_traces(textposition='outside')
     st.plotly_chart(fig, use_container_width=True)
