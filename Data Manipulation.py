@@ -8,8 +8,7 @@ import os
 warnings.filterwarnings('ignore')
 
 gmaps = googlemaps.Client(key='AIzaSyAY2UiYlMrmqUMarroMfogazA6Ls0t7rV0')
-test = gmaps.distance_matrix("Reading, UK", "Heathrow Airport, London, UK", mode="driving")
-st.write("Test result:", test)
+
 
 px.set_mapbox_access_token("pk.eyJ1IjoiZW1tYW51ZWw1NTMiLCJhIjoiY21iMHo2NHR0MHByNDJqc2ExbW9tYXIxdyJ9.ZpoelGXM50x8AoLAPU6V9Q")
 
@@ -20,7 +19,8 @@ st.markdown('<style>div.block-container{padding-top:3rem;}</style>', unsafe_allo
 
 # FILE UPLOAD
 fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
-
+test = gmaps.distance_matrix("Reading, UK", "Heathrow Airport, London, UK", mode="driving")
+st.write("Test result:", test)
 if fl is not None:
     filename = fl.name
     st.write(filename)
