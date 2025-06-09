@@ -80,9 +80,20 @@ region_pop.columns = ["Region", "Region Population"]
 region_data = pd.merge(region_trips, region_pop, on="Region")
 region_data["Trip Rate"] = region_data["Heathrow Trips"] / region_data["Region Population"]
 # If the region is London, give it the SOUTH EAST Trip rate
+# Get South East's trip rate
 southeast_rate = region_data.loc[region_data["Region"] == "SOUTH EAST", "Trip Rate"].values[0]
-townpop.loc[townpop["Region"] == "LONDON", "Trip Rate"] = southeast_rate
-
+# Get London's population
+london_pop = region_pop.loc[region_pop["Region"] == "LONDON", "Region Population"].values[0]
+# Create new row for London
+london_row = pd.DataFrame([{
+    "Region": "LONDON",
+    "Heathrow Trips": southeast_rate * london_pop,
+    "Region Population": london_pop,
+    "Trip Rate": southeast_rate
+}])
+# Append it to region_data
+region_data = pd.concat([region_data, london_row], ignore_index=True)
+# Merge this data with main table
 townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="left")
 townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
 
