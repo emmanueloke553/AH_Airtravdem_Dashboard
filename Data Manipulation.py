@@ -79,12 +79,13 @@ region_pop.columns = ["Region", "Region Population"]
 # Merge pop with trips
 region_data = pd.merge(region_trips, region_pop, on="Region")
 region_data["Trip Rate"] = region_data["Heathrow Trips"] / region_data["Region Population"]
-
-townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="left")
-townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
 # If the region is London, give it the SOUTH EAST Trip rate
 southeast_rate = region_data.loc[region_data["Region"] == "SOUTH EAST", "Trip Rate"].values[0]
 townpop.loc[townpop["Region"] == "LONDON", "Trip Rate"] = southeast_rate
+
+townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="left")
+townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
+
 
 # --- Cache Setup ---
 # Get Travel times to Heathrow using google maps API
