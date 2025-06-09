@@ -61,25 +61,30 @@ townpop = townpop[townpop['Geography'].isin([
     "Unitary Authority", "Metropolitan District", "Non-metropolitan District", "London Borough"
 ])]
 
-# Define region multipliers
-region_multipliers = {
-    "LONDON": 2.6,
-    "SOUTH EAST": 1.85,
-    "SOUTH WEST": 1.45,
-    "EAST": 1.65,
-    "WEST MIDLANDS": 1.3,
-    "EAST MIDLANDS": 1.4,
-    "YORKSHIRE AND THE HUMBER": 1.3,
-    "NORTH WEST": 1.5,
-    "NORTH EAST": 1.1,
-    "WALES": 1.05
-}
+# --- Get Multiplier ---
+region_trips = pd.DataFrame({
+    "Region": [
+        "SOUTH EAST", "SOUTH WEST", "EAST", "WEST MIDLANDS", "EAST MIDLANDS",
+        "YORKSHIRE AND THE HUMBER", "NORTH WEST", "NORTH EAST", "WALES"
+    ],
+    "Heathrow Trips": [
+        41989000, 4095000, 4739000, 1809000, 1881000,
+        859000, 614000, 155000, 1161000
+    ]
+})
 
-# Add multiplier column based on Region
-townpop['Multiplier'] = townpop['Region'].map(region_multipliers)
+# Calculate Regional Population
+region_pop = townpop.groupby("Region")["Mid-2023"].sum().reset_index()
+region_pop.columns = ["Region", "Region Population"]
+# Merge pop with trips
+region_data = pd.merge(region_trips, region_pop, on="Region")
+region_data["Trip Rate"] = region_data["Heathrow Trips"] / region_data["Region Population"]
 
-# Make column showing Air travel demand
-townpop['Annual Air Travel Demand'] = (townpop['Multiplier'] * townpop['Mid-2023'])
+townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="left")
+townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
+# If the region is London, give it the SOUTH EAST Trip rate
+southeast_rate = region_data.loc[region_data["Region"] == "SOUTH EAST", "Trip Rate"].values[0]
+townpop.loc[townpop["Region"] == "LONDON", "Trip Rate"] = southeast_rate
 
 # --- Cache Setup ---
 # Get Travel times to Heathrow using google maps API
@@ -248,36 +253,32 @@ pd.DataFrame(travel_cache_rows).to_csv("travel_mode_cache.csv", index=False)
 # --------------------------------------------------
 
 # REGION + COUNTY DROPDOWNS
-# --- Dynamic Dropdown Options ---
-region_list = townpop['Region'].dropna().unique()
+# --- Sidebar Filters ---
+st.sidebar.header("Choose your Filters")
 
-# Start with full options
+# Build initial lists
+region_list = townpop['Region'].dropna().unique()
 county_list = townpop['County'].dropna().unique()
 district_list = townpop['Name'].sort_values().unique()
 
-# Apply interdependent filtering
-selected_regions = st.sidebar.multiselect("Select Region(s)", region_list)
-
+# Region selection
+selected_regions = st.sidebar.multiselect("Select Region(s)", region_list, key="region_selector")
+# Update counties list based on region selection
 if selected_regions:
     county_list = townpop[townpop['Region'].isin(selected_regions)]['County'].dropna().unique()
-
-selected_counties = st.sidebar.multiselect("Select County(ies)", county_list)
-
+selected_counties = st.sidebar.multiselect("Select County(ies)", county_list, key="county_selector")
+# Update district list based on county selection
 if selected_counties:
     district_list = townpop[townpop['County'].isin(selected_counties)]['Name'].sort_values().unique()
+selected_districts = st.sidebar.multiselect("Select District(s)", district_list, key="district_selector")
 
-selected_districts = st.sidebar.multiselect("Select District(s)", district_list)
-
-
-st.sidebar.header("Choose your Filters")
-selected_regions = st.sidebar.multiselect("Select Region(s)", region_list)
-selected_counties = st.sidebar.multiselect("Select County(ies)", county_list)
-selected_districts = st.sidebar.multiselect("Select District(s)", district_list)
+# Other filters
 within_2hr_drive = st.sidebar.checkbox("Only show towns within 2 hours of Heathrow", value=False)
 exclude_london = st.sidebar.checkbox("Exclude London")
 
-# APPLY FILTERS
+# --- Apply Filters to DataFrame ---
 filtered_df = townpop.copy()
+
 if selected_regions:
     filtered_df = filtered_df[filtered_df['Region'].isin(selected_regions)]
 if selected_counties:
@@ -287,9 +288,9 @@ if selected_districts:
 if within_2hr_drive:
     filtered_df = filtered_df[filtered_df["Driving Time (mins)"] <= 120]
 if exclude_london:
-    filtered_df = filtered_df[filtered_df['Region'].str.upper() != "LONDON"]
+    filtered_df = filtered_df[filtered_df['Region'].fillna('').str.upper() != "LONDON"]
 
-# DISPLAY
+# --- Display Output ---
 st.dataframe(filtered_df)
 
 # ---------------------------------------------------------------------------
