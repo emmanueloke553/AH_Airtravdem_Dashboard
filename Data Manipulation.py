@@ -396,25 +396,23 @@ with tab4:
 
 with tab5:
     st.subheader("📋 High Demand Towns Within 90 Minutes of Heathrow")
+    
     high_demand_close = filtered_df[
         (filtered_df["Driving Time (mins)"] <= 120) &
         (filtered_df["Annual Air Travel Demand"] > filtered_df["Annual Air Travel Demand"].median())
     ][["Name", "Region", "Mid-2023", "Annual Air Travel Demand", "Driving Time (mins)"]]
-    high_demand_close = high_demand_close.rename(columns={
-    "Mid-2023": "Population",
-    "Annual Air Travel Demand": "Air Travel Demand",
-    "Driving Time (mins)": "Drive Time (mins)"
-})
-    
+
+    # Sort first
+    sorted_close = high_demand_close.sort_values("Annual Air Travel Demand", ascending=False)
+
+    # Then apply formatting
     st.dataframe(
-    high_demand_close.sort_values("Annual Air Travel Demand", ascending=False)
-    .style.format({
-        "Mid-2023": "{:,.0f}",
-        "Annual Air Travel Demand": "{:,.0f}",
-        "Driving Time (mins)": "{:,.0f}"
-    })
-)
-    
+        sorted_close.style.format({
+            "Mid-2023": "{:,.0f}",
+            "Annual Air Travel Demand": "{:,.0f}",
+            "Driving Time (mins)": "{:,.0f}"
+        })
+    )
 
 
 # Save coordinate cache back to CSV
