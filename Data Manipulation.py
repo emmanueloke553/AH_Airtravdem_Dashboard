@@ -400,9 +400,20 @@ with tab5:
         (filtered_df["Driving Time (mins)"] <= 120) &
         (filtered_df["Annual Air Travel Demand"] > filtered_df["Annual Air Travel Demand"].median())
     ][["Name", "Region", "Mid-2023", "Annual Air Travel Demand", "Driving Time (mins)"]]
-
-    fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
-    st.dataframe(high_demand_close.sort_values("Annual Air Travel Demand", ascending=False))
+    high_demand_close = high_demand_close.rename(columns={
+    "Mid-2023": "Population",
+    "Annual Air Travel Demand": "Air Travel Demand",
+    "Driving Time (mins)": "Drive Time (mins)"
+})
+    
+    st.dataframe(
+    high_demand_close.sort_values("Annual Air Travel Demand", ascending=False)
+    .style.format({
+        "Mid-2023": "{:,.0f}",
+        "Annual Air Travel Demand": "{:,.0f}",
+        "Driving Time (mins)": "{:,.0f}"
+    })
+)
     
 
 
