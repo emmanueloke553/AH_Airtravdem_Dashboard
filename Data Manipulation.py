@@ -321,11 +321,11 @@ with tab2:
         x = "Region", 
         y = "Mid-2023", 
         text = filtered_df["Mid-2023"].apply(lambda x: f"{x:,.0f}"), 
-        template="plotly_white")
+        template="plotly_white",
+        height = 400)
+    fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     st.plotly_chart(fig,use_container_width=True, height = 200)
-
-    st.subheader("Total Annual Air Travel Demand in Filtered Selection")
-    st.metric("Demand", f"{filtered_df['Annual Air Travel Demand'].sum():,}")
+    
 
 with tab3:
     # --- Show Bar Chart of Air Travel Demand ---
@@ -338,8 +338,10 @@ with tab3:
         template="plotly_white",
         title="Total Annual Air Travel Demand by Region"
     )
+    fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     # Show chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
+    
 
 # --- Top 10 Areas by Air Travel Demand ---
 
@@ -390,6 +392,7 @@ with tab4:
         title="Share of Total Air Travel Demand by Region"
     )
     st.plotly_chart(fig, use_container_width=True)
+    
 
 with tab5:
     st.subheader("📋 High Demand Towns Within 90 Minutes of Heathrow")
@@ -398,7 +401,9 @@ with tab5:
         (filtered_df["Annual Air Travel Demand"] > filtered_df["Annual Air Travel Demand"].median())
     ][["Name", "Region", "Mid-2023", "Annual Air Travel Demand", "Driving Time (mins)"]]
 
+    
     st.dataframe(high_demand_close.sort_values("Annual Air Travel Demand", ascending=False))
+    
 
 
 # Save coordinate cache back to CSV
@@ -430,7 +435,7 @@ with tab7:
         title="Top 10 Areas with Biggest Public Transport Delay vs Driving",
         template="plotly_white"
     )
-    fig.update_traces(textposition='outside')
+    fig.update_traces(texttemplate='%{text:,.0f}', textposition='outside')
     st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------------------
@@ -449,5 +454,7 @@ with tab6:
         mapbox_style="carto-positron",
         height = 1000
     )
+    
     st.plotly_chart(fig, use_container_width=True)
+    
 
