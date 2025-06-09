@@ -19,8 +19,7 @@ st.markdown('<style>div.block-container{padding-top:3rem;}</style>', unsafe_allo
 
 # FILE UPLOAD
 fl = st.file_uploader(":file_folder: Upload a file", type=["csv", "txt", "xlsx", "xls"])
-test = gmaps.distance_matrix("Reading, UK", "Heathrow Airport, London, UK", mode="driving")
-st.write("Test result:", test)
+
 if fl is not None:
     filename = fl.name
     st.write(filename)
