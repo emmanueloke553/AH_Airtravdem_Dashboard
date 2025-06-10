@@ -423,11 +423,11 @@ coord_out_df = pd.DataFrame([
 coord_out_df.to_csv(COORD_CACHE_PATH, index=False)
 
 # Drop rows with missing data for map
-townpop = townpop.dropna(subset=['Latitude', 'Longitude', 'Annual Air Travel Demand'])
+filtered_df1 = filtered_df.dropna(subset=['Latitude', 'Longitude', 'Annual Air Travel Demand'])
 
 # --- Plot bar chart showing top 10 areas with biggest difference between car and Public transport travel times ---
 # Filter valid rows
-mode_df = townpop.dropna(subset=["Driving Time (mins)", "Transit Time (mins)"]).copy()
+mode_df = filtered_df1.dropna(subset=["Driving Time (mins)", "Transit Time (mins)"]).copy()
 mode_df["Time Gap (mins)"] = mode_df["Transit Time (mins)"] - mode_df["Driving Time (mins)"]
 
 # Show top differences
