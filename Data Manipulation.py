@@ -85,28 +85,27 @@ townpop = townpop.merge(region_data[["Region", "Trip Rate"]], on="Region", how="
 townpop["Annual Air Travel Demand"] = townpop["Mid-2023"] * townpop["Trip Rate"]
 
 # --- Cache Setup ---
-# Get Travel times to Heathrow using google maps API
-CACHE_PATH = "travel_time_cache.csv"
+# --- Travel Time Cache Setup ---
+CACHE_PATH = "travel_time_cache.parquet"
 
-# Load cache if it exists
-if os.path.exists(CACHE_PATH):
-    cache_df = pd.read_csv(CACHE_PATH)
+# Load travel time cache if it exists and is not empty
+travel_time_cache = {}
+if os.path.exists(CACHE_PATH) and os.path.getsize(CACHE_PATH) > 0:
     try:
+        cache_df = pd.read_parquet(CACHE_PATH)
         travel_time_cache = cache_df.set_index("Town")[["Driving", "Transit"]].to_dict(orient="index")
-    except:
+    except Exception as e:
+        print(f"Warning: Could not load travel time cache: {e}")
         travel_time_cache = {}
-else:
-    travel_time_cache = {}
 
-# COORDINATE CACHE SETUP
-COORD_CACHE_PATH = "coordinates_cache.csv"
+# --- Coordinate Cache Setup ---
+COORD_CACHE_PATH = "coordinates_cache.parquet"
 
-# Load existing coordinate cache
 coord_cache = {}
-if os.path.exists(COORD_CACHE_PATH):
+if os.path.exists(COORD_CACHE_PATH) and os.path.getsize(COORD_CACHE_PATH) > 0:
     try:
-        coord_df = pd.read_csv(COORD_CACHE_PATH)
-        if 'Town' in coord_df.columns and 'Latitude' in coord_df.columns and 'Longitude' in coord_df.columns:
+        coord_df = pd.read_parquet(COORD_CACHE_PATH)
+        if {'Town', 'Latitude', 'Longitude'}.issubset(coord_df.columns):
             coord_cache = dict(zip(coord_df['Town'], zip(coord_df['Latitude'], coord_df['Longitude'])))
     except Exception as e:
         print(f"Warning: Could not load coordinate cache: {e}")
@@ -235,17 +234,19 @@ for idx, row in missing_times.iterrows():
         townpop.at[idx, 'Transit Time (mins)'] = times.get('Transit')
 
 
-# Save updated travel time cache to CSV
-travel_cache_rows = []
-for town, time_data in travel_time_cache.items():
-    if isinstance(time_data, dict):
-        travel_cache_rows.append({
-            "Town": town,
-            "Driving": time_data.get("Driving"),
-            "Transit": time_data.get("Transit")
-        })
+# Save updated travel time cache to Parquet only if it has data
+travel_cache_rows = [
+    {
+        "Town": town,
+        "Driving": time_data.get("Driving"),
+        "Transit": time_data.get("Transit")
+    }
+    for town, time_data in travel_time_cache.items()
+    if isinstance(time_data, dict)
+]
 
-pd.DataFrame(travel_cache_rows).to_csv(CACHE_PATH, index=False)
+if travel_cache_rows:
+    pd.DataFrame(travel_cache_rows).to_parquet(CACHE_PATH, index=False)
 
 
 # --------------------------------------------------
@@ -415,12 +416,13 @@ with tab5:
     )
 
 
-# Save coordinate cache back to CSV
-coord_out_df = pd.DataFrame([
-    {'Town': town, 'Latitude': lat, 'Longitude': lon}
-    for town, (lat, lon) in coord_cache.items()
-])
-coord_out_df.to_csv(COORD_CACHE_PATH, index=False)
+# Save coordinate cache back to Parquet only if it has data
+if coord_cache:
+    coord_out_df = pd.DataFrame([
+        {'Town': town, 'Latitude': lat, 'Longitude': lon}
+        for town, (lat, lon) in coord_cache.items()
+    ])
+    coord_out_df.to_parquet(COORD_CACHE_PATH, index=False)
 
 # Drop rows with missing data for map
 filtered_df1 = filtered_df.dropna(subset=['Latitude', 'Longitude', 'Annual Air Travel Demand'])
